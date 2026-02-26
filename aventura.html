@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtPlanner - Modo Aventura</title>
+<link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #FF3366;
+            --secondary: #20E3B2;
+            --dark: #2B2D42;
+            --light: #F8F9FA;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(-45deg, #23a6d5, #23d5ab, #ee7752, #e73c7e);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 650px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .container::-webkit-scrollbar { display: none; }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+            background: -webkit-linear-gradient(var(--secondary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.2em;
+            color: var(--dark);
+            font-weight: bold;
+            margin-bottom: 25px;
+            border-bottom: 2px dashed #ccc;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+            background-color: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .form-control:disabled {
+            background-color: #eee;
+            cursor: not-allowed;
+            color: #666;
+        }
+
+        .pda-box {
+            background-color: #f0f8ff;
+            border: 2px solid #a4c8e1;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            color: var(--dark);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .btn-submit {
+            background: linear-gradient(45deg, var(--secondary), var(--primary));
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid var(--dark);
+            color: var(--dark);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: var(--dark);
+            color: white;
+        }
+
+        .legacy-footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ART PLANNER</h1>
+        <p class="subtitle">🚀 Modo Aventura: Exploración libre del Programa Sintético</p>
+
+        <div class="form-group">
+            <label for="grado-select">1. Selecciona el Grado (Fase 6):</label>
+            <select id="grado-select" class="form-control" onchange="actualizarInterfaz()">
+                <option value="" disabled selected>Elige un grado...</option>
+                <option value="1">1er Año de Secundaria</option>
+                <option value="2">2do Año de Secundaria</option>
+                <option value="3">3er Año de Secundaria</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="contenido-select">2. Selecciona el Contenido del programa:</label>
+            <select id="contenido-select" class="form-control" disabled onchange="mostrarPDA()">
+                <option value="" disabled selected>Primero selecciona un grado...</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>3. Tu PDA correspondiente es:</label>
+            <div id="pda-display" class="pda-box">
+                <em>Selecciona el grado y contenido para ver el PDA a explorar.</em>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="problematica-input">4. Problemática del contexto (escuela o comunidad):</label>
+            <textarea id="problematica-input" class="form-control" placeholder="Describe brevemente la situación a atender..."></textarea>
+        </div>
+
+        <button class="btn-submit" onclick="generarPlaneacion()">✨ Generar Planeación de Aventura ✨</button>
+        
+        <div id="caja-resultado" class="hidden" style="margin-top: 30px; text-align: left; background: white; padding: 25px; border-radius: 15px; border: 2px solid var(--secondary); box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+            <h3 style="color: var(--dark); margin-top: 0; border-bottom: 2px solid var(--primary); padding-bottom: 10px;">Tu Planeación Interdisciplinaria:</h3>
+            <div id="texto-ia" style="font-size: 1.05em; line-height: 1.6; color: #333; white-space: pre-wrap;"></div>
+        </div>
+        
+        <br>
+        <button class="btn-back" onclick="window.location.href='index.html'">Volver al Inicio</button>
+    </div>
+
+    <div class="legacy-footer">
+        APP creada por el ATP Ulises Jimenez
+    </div>
+
+    <script>
+        // Recuperamos la especialidad solo para tenerla en la memoria, pero NO la mostramos como limitante
+        let especialidad = localStorage.getItem('especialidad_docente') || "No especificada";
+
+        // ==========================================
+        // BASE DE DATOS DE ARTES (CONTENIDOS Y PDAS)
+        // ==========================================
+        const baseDatosArtes = [
+            {
+                contenido: "Diversidad de lenguajes artísticos en la riqueza pluricultural de México y del mundo.",
+                pdas: {
+                    "1": "Reconoce en manifestaciones artísticas de México y del mundo el uso del cuerpo, del espacio y del tiempo, para valorarlas como parte de la riqueza pluricultural.",
+                    "2": "Explora la creación de secuencias y patrones al identificar el uso de formas, colores, movimientos, sonidos, entre otros elementos de las artes, en manifestaciones artísticas de México y del mundo, para apreciar la riqueza pluricultural.",
+                    "3": "Experimenta con características de algunos estilos de los lenguajes artísticos, para representar la riqueza pluricultural de México y del mundo."
+                }
+            },
+            {
+                contenido: "Manifestaciones culturales y artísticas que conforman la diversidad étnica, cultural y lingüística.",
+                pdas: {
+                    "1": "Identifica diferentes manifestaciones culturales y artísticas de pueblos indígenas y afrodescendientes de México y del mundo, para interpretar significados que permitan fomentar una sociedad intercultural.",
+                    "2": "Compara el uso de formas, colores, movimientos, sonidos, entre otros elementos de las artes, en manifestaciones culturales y artísticas de diferentes épocas y orígenes culturales, para fomentar una sociedad intercultural.",
+                    "3": "Presenta una propuesta creativa, usando intencionalmente el cuerpo, espacio y tiempo, entre otros elementos de las artes, para valorar y promover la diversidad étnica, cultural y lingüística, a favor de una sociedad intercultural."
+                }
+            },
+            {
+                contenido: "Identidad y sentido de pertenencia en manifestaciones artísticas.",
+                pdas: {
+                    "1": "Aprecia la intención expresiva en diversas manifestaciones artísticas, para la construcción crítica de las identidades personal y colectiva.",
+                    "2": "Reflexiona sobre la manera en que las artes fortalecen la identidad, dan sentido de pertenencia y resultan esenciales para favorecer la interculturalidad crítica.",
+                    "3": "Crea propuestas artísticas utilizando intencionalmente características de algunos estilos artísticos, a favor de la interculturalidad crítica, para fortalecer las identidades personal y colectiva."
+                }
+            },
+            {
+                contenido: "Patrimonio cultural de la comunidad en manifestaciones artísticas que fomentan la identidad y el sentido de pertenencia.",
+                pdas: {
+                    "1": "Interpreta manifestaciones artísticas del patrimonio cultural de la comunidad y de México, para fomentar las identidades personal y colectiva, así como el sentido de pertenencia.",
+                    "2": "Expresa, mediante lenguajes artísticos, la relevancia de valorar, conservar y preservar el patrimonio cultural, como legado que le otorga identidad y sentido de pertenencia.",
+                    "3": "Reinterpreta de manera respetuosa manifestaciones artísticas del patrimonio cultural, para valorar su identidad y sentido de pertenencia."
+                }
+            },
+            {
+                contenido: "Los lenguajes artísticos en la expresión de problemas de la comunidad.",
+                pdas: {
+                    "1": "Usa intencionalmente formas, colores, movimientos, sonidos, entre otros elementos de las artes, para recrear una situación problemática de su contexto y manifestar una postura crítica.",
+                    "2": "Investiga propuestas artísticas colectivas de entornos rurales y urbanos a favor de la inclusión, para presentar una postura crítica sobre un problema de la comunidad.",
+                    "3": "Experimenta con técnicas artísticas y elige una que implemente en un proyecto escolar creativo, para imaginar y proponer posibles soluciones a problemas de la comunidad."
+                }
+            },
+            {
+                contenido: "Elementos de las artes y recursos estéticos apreciados en el entorno natural y social, así como en diversas manifestaciones artísticas.",
+                pdas: {
+                    "1": "(1) Identifica el uso intencional del cuerpo, del espacio y del tiempo en manifestaciones artísticas, para apreciar e interpretar sus sentidos y significados. (2) Percibe cualidades estéticas en el entorno natural y social, para interpretar sus sentidos y significados.",
+                    "2": "(1) Analiza el uso intencional de elementos de las artes y recursos estéticos como ritmo, repetición, armonía, contraste, variación, en manifestaciones artísticas, para emplearlos en una creación personal. (2) Reinterpreta los sentidos y significados de las cualidades estéticas del entorno natural y social en creaciones artísticas personales.",
+                    "3": "(1) Usa intencionalmente figuras retóricas como metáforas, hipérboles, sinécdoques, aliteraciones, en creaciones artísticas colectivas, para representar situaciones vinculadas a la comunidad. (2) Interviene el entorno natural y social, mediante el uso de los lenguajes artísticos, para expresar un mensaje a favor del cuidado del medioambiente."
+                }
+            },
+            {
+                contenido: "Valor estético de la naturaleza, de la vida cotidiana y de diferentes manifestaciones culturales y artísticas.",
+                pdas: {
+                    "1": "(1) Disfruta de manifestaciones culturales y artísticas de la comunidad y de otros lugares, para reconocer sus gustos e intereses estéticos. (2) Disfruta los valores estéticos presentes en la naturaleza, para apreciarla y expresarla.",
+                    "2": "(1) Investiga diversas manifestaciones culturales y artísticas, para expresar un juicio estético y lo difunde en la comunidad escolar. (2) Emite un juicio estético sobre un episodio significativo de la vida cotidiana y lo difunde en la comunidad escolar.",
+                    "3": "(1) Identifica algunas categorías estéticas como lo bello, lo sublime, lo grotesco, lo trágico, lo cómico, lo siniestro, al apreciarlas en manifestaciones culturales y artísticas, para argumentar sus juicios estéticos y difundirlos en la comunidad. (2) Identifica algunas categorías estéticas como lo bello, lo sublime, lo grotesco, lo trágico, lo cómico, lo siniestro, al apreciarlas en la naturaleza y en la vida cotidiana, para compartir sus juicios estéticos y difundirlos en la comunidad."
+                }
+            },
+            {
+                contenido: "Creaciones artísticas que tienen su origen en textos literarios.",
+                pdas: {
+                    "1": "Explora con formas, colores, movimientos, sonidos, entre otros elementos de las artes, para reinterpretar textos literarios de la comunidad u otros lugares, haciendo uso de diversos lenguajes artísticos.",
+                    "2": "Adapta textos literarios provenientes de culturas indígenas o afrodescendientes, experimentando con elementos de las artes y recursos estéticos como la repetición, ritmo, armonía, contraste, variación, para sensibilizar a la comunidad sobre las formas de expresión de los pueblos originarios.",
+                    "3": "Construye una narrativa personal o colectiva, a partir de un texto literario de su interés, empleando en forma artística cuerpo, espacio y tiempo."
+                }
+            },
+            {
+                contenido: "Expresión artística de sensaciones, emociones, sentimientos e ideas, a partir de experiencias familiares, escolares o comunitarias.",
+                pdas: {
+                    "1": "Recrea lúdicamente sensaciones, emociones, sentimientos e ideas, mediante el uso del cuerpo, del espacio y del tiempo, para expresar la relación con su entorno familiar.",
+                    "2": "Explora con técnicas artísticas y elige una para apreciar, simbolizar y compartir sensaciones, emociones, sentimientos e ideas relacionados con el entorno escolar.",
+                    "3": "Usa intencionalmente características y funciones de algunos géneros artísticos, para crear una obra original que simbolice sus vínculos con la comunidad."
+                }
+            },
+            {
+                contenido: "Memoria colectiva representada por medios artísticos, para registrar experiencias comunitarias.",
+                pdas: {
+                    "1": "Recupera de la memoria colectiva acontecimientos significativos de las familias, escuela o comunidad, para representarlos de manera creativa.",
+                    "2": "Reinterpreta, mediante características de algunos géneros artísticos, un acontecimiento familiar, escolar o comunitario significativo de la memoria colectiva.",
+                    "3": "Manifiesta una postura crítica sobre la memoria colectiva, acerca de un acontecimiento relevante para la comunidad, al hacer uso de los lenguajes artísticos."
+                }
+            },
+            {
+                contenido: "Procesos creativos que ponen en práctica la comunicación dialógica, como estrategia para erradicar expresiones de violencia.",
+                pdas: {
+                    "1": "Expresa, mediante elementos de las artes como las formas, colores, movimientos, sonidos, la relevancia del diálogo como una alternativa a las manifestaciones de violencia presentes en la familia, escuela y comunidad.",
+                    "2": "Imagina y comparte propuestas artísticas de acción para contribuir en la erradicación de la violencia en la familia, escuela y comunidad, haciendo uso de una comunicación abierta, respetuosa y empática con la diversidad.",
+                    "3": "Presenta al público una propuesta artística respetuosa y empática con la diversidad, para sensibilizar a la comunidad acerca de la importancia del diálogo para erradicar la violencia en el entorno."
+                }
+            },
+            {
+                contenido: "Vida saludable expresada a través de mensajes construidos con elementos de las artes, para difundirlos por distintos medios de comunicación.",
+                pdas: {
+                    "1": "Emplea intencionalmente formas, colores, movimientos, sonidos, entre otros elementos de las artes, para representar una vida saludable y la difunde por un medio de comunicación escolar.",
+                    "2": "Crea mensajes que promuevan una vida saludable, utilizando artísticamente formas, colores, movimientos y sonidos, entre otros elementos de las artes, para difundirlos por distintos medios de comunicación.",
+                    "3": "Construye una narrativa a favor de una vida saludable, mediante el uso artístico de distintos formatos como fotografía, historieta, secuencia corporal, secuencia sonora, entre otros, y la difunde por distintos medios de comunicación."
+                }
+            },
+            {
+                contenido: "Sistemas alternativos y aumentativos de comunicación, como herramientas creativas que favorecen la inclusión.",
+                pdas: {
+                    "1": "Identifica algunas características sensoriales de la Lengua de Señas Mexicana, el código Braille, los tableros de comunicación y otros sistemas alternativos y aumentativos, para fomentar la interacción, sensibilización y empatía con la diversidad.",
+                    "2": "Experimenta con sistemas alternativos y aumentativos de comunicación al usar artísticamente el cuerpo, espacio, tiempo, entre otros elementos de las artes, en una propuesta comunitaria que visibilice la diversidad y fomente la inclusión social.",
+                    "3": "Crea códigos que favorezcan la inclusión, a través del uso artístico de formas, colores, texturas, movimientos, gestos, sonidos, entre otros recursos que incorporen características de los sistemas alternativos y aumentativos."
+                }
+            },
+            {
+                contenido: "Manifestaciones artísticas que emplean sistemas alternativos y aumentativos de comunicación, elaboradas por personas en condición de discapacidad y/o diseñadas para ellas.",
+                pdas: {
+                    "1": "Reconoce los valores estéticos y creativos de las manifestaciones artísticas realizadas por personas con alguna discapacidad, para fomentar la inclusión.",
+                    "2": "Aprecia y reflexiona acerca del uso de sistemas alternativos y aumentativos en manifestaciones artísticas diseñadas para personas en condición de discapacidad, a fin de favorecer el tránsito a una sociedad incluyente.",
+                    "3": "Presenta una creación artística en la que experimente con sistemas alternativos y aumentativos de comunicación, para favorecer el tránsito a una sociedad incluyente."
+                }
+            }
+        ];
+        // ==========================================
+
+        function actualizarInterfaz() {
+            let gradoElegido = document.getElementById('grado-select').value;
+            let selectContenido = document.getElementById('contenido-select');
+            let displayPDA = document.getElementById('pda-display');
+            
+            selectContenido.disabled = false;
+            selectContenido.innerHTML = '<option value="" disabled selected>Elige el Contenido...</option>';
+            
+            baseDatosArtes.forEach(function(item, index) {
+                let nuevaOpcion = document.createElement('option');
+                nuevaOpcion.value = index;
+                nuevaOpcion.text = item.contenido;
+                selectContenido.appendChild(nuevaOpcion);
+            });
+
+            displayPDA.innerHTML = "<em>Ahora selecciona el Contenido para ver tu PDA.</em>";
+        }
+
+        function mostrarPDA() {
+            let gradoElegido = document.getElementById('grado-select').value;
+            let indexContenido = document.getElementById('contenido-select').value;
+            let displayPDA = document.getElementById('pda-display');
+
+            let pdaExacto = baseDatosArtes[indexContenido].pdas[gradoElegido];
+            displayPDA.innerText = pdaExacto;
+        }
+
+       // Función mejorada para traducir el formato de la IA a HTML limpio
+        function formatearTextoIA(texto) {
+            let html = texto;
+            html = html.replace(/### (.*)/g, '<h4 style="color: var(--primary); margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">$1</h4>');
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/^\* (.*)/gm, '<li style="margin-left: 20px; margin-bottom: 5px;">$1</li>');
+            html = html.replace(/```html|```/g, '');
+            return html;
+        }
+
+        async function generarPlaneacion() {
+            let grado = document.getElementById('grado-select').value;
+            let indexContenido = document.getElementById('contenido-select').value;
+            let problematica = document.getElementById('problematica-input').value;
+            let boton = document.querySelector('.btn-submit');
+            let cajaResultado = document.getElementById('caja-resultado');
+            let textoIA = document.getElementById('texto-ia');
+
+            if(!grado || !indexContenido || problematica.trim() === "") {
+                alert("Por favor, completa todos los campos para continuar.");
+                return;
+            }
+
+            let contenidoFinal = baseDatosArtes[indexContenido].contenido;
+            let pdaFinal = baseDatosArtes[indexContenido].pdas[grado];
+
+            // 1. CONSTRUIMOS EL PROMPT MÁGICO PARA AVENTURA
+            let promptMagico = `Actúa exclusivamente como un especialista en pedagogía de Artes interdisciplinarias y en la implementación oficial de la Nueva Escuela Mexicana (Plan de Estudios 2022). 
+
+RESTRICCIONES OBLIGATORIAS:
+- Basa tu respuesta estrictamente en los principios de la NEM.
+- Prohibido utilizar, mencionar o mezclar conceptos del modelo de "Aprendizajes Clave 2017" o enfoques por competencias tradicionales.
+- No alteres ni reformules el PDA.
+- REGLA DE FORMATO: NO incluyas saludos, introducciones ni despedidas. Genera EXCLUSIVAMENTE el contenido de la planeación iniciando directamente con el punto 1.
+
+CONTEXTO DEL DOCENTE:
+- Grado: ${grado}° de Secundaria (Fase 6).
+- Contenido del Programa Sintético: ${contenidoFinal}.
+- Proceso de Desarrollo de Aprendizaje (PDA): ${pdaFinal}.
+- Problemática del contexto escolar/comunitario a atender: ${problematica}.
+
+INSTRUCCIONES:
+El docente desea explorar múltiples lenguajes artísticos sin limitarse a una sola disciplina. Desarrolla una propuesta estructurada con los siguientes títulos:
+
+1️⃣ ANÁLISIS DEL PDA (Taxonomía de Bloom)
+Identifica el verbo principal exacto. Clasifícalo correctamente y explica el reto cognitivo que representa.
+
+2️⃣ TIEMPO SUGERIDO
+Justifica el rango de sesiones considerando el nivel cognitivo de Bloom, la complejidad de integrar múltiples lenguajes y los procesos reflexivos comunitarios propios de la NEM.
+
+3️⃣ RUTA DE ACTIVIDADES (Enfoque Interdisciplinario)
+Diseña un Inicio, Desarrollo y Cierre. Integra de manera articulada al menos dos lenguajes artísticos (visuales, teatro, danza, música o artes digitales). La mezcla debe ser coherente con el PDA y resolver o problematizar el contexto. Prioriza el proceso sobre el producto y promueve el pensamiento crítico. No conviertas la planeación en un festival artístico sin profundidad pedagógica.
+
+4️⃣ EVALUACIÓN FORMATIVA
+Propón 2 técnicas y 2 instrumentos enfocados en el proceso creativo, la metacognición y la construcción colectiva. Evita rúbricas centradas únicamente en la calidad estética final.
+
+VERIFICACIÓN INTERNA: Confirma silenciosamente que todas las actividades derivan directamente del PDA y que la interdisciplinariedad tiene intención pedagógica. NO imprimas esta lista de verificación en tu respuesta final. Usa un tono inspirador y profesional.`;
+
+            // 2. CAMBIAMOS EL BOTÓN PARA QUE EL MAESTRO SEPA QUE ESTÁ CARGANDO
+            boton.innerText = "⏳ Diseñando Aventura Interdisciplinaria...";
+            boton.disabled = true;
+            boton.style.opacity = "0.7";
+            cajaResultado.classList.add('hidden'); 
+
+            // 3. LA LLAMADA A LA INTELIGENCIA ARTIFICIAL (API de Gemini)
+            const apiKey = 'AIzaSyAGV33FQMo4motATHuzRntNaIMtyvbozmI'; // <--- ¡RECUERDA PEGAR TU CLAVE REAL AQUÍ!
+            const urlAPI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const respuesta = await fetch(urlAPI, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: promptMagico }] }]
+                    })
+                });
+
+                if (!respuesta.ok) throw new Error("Error al conectar con la IA");
+
+                const datos = await respuesta.json();
+                
+                let respuestaFinal = datos.candidates[0].content.parts[0].text;
+                respuestaFinal = formatearTextoIA(respuestaFinal);
+
+                textoIA.innerHTML = respuestaFinal;
+                cajaResultado.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Hubo un error:", error);
+                alert("Upps, hubo un problema al conectar con la inteligencia artificial. Revisa tu conexión a internet o tu clave API.");
+            } finally {
+                // 4. DEVOLVEMOS EL BOTÓN A LA NORMALIDAD
+                boton.innerText = "✨ Generar Planeación..."; // (Mágica o de Aventura)
+                boton.disabled = false;
+                boton.style.opacity = "1";
+            }
+        }
+    </script> <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('PWA registrada con éxito.', reg))
+        .catch(err => console.log('Error al registrar PWA.', err));
+    });
+  }
+</script>
+</body>
+</html>

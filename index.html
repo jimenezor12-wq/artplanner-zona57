@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtPlanner - Asistente de Artes</title>
+<link rel="manifest" href="manifest.json">
+    <style>
+        :root {
+            --primary: #FF3366;
+            --secondary: #20E3B2;
+            --dark: #2B2D42;
+            --light: #F8F9FA;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--dark);
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            transition: all 0.5s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: -webkit-linear-gradient(var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.2em;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+
+        .grid-specialties {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-specialty {
+            background: white;
+            border: 2px solid transparent;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .btn-specialty:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        #btn-visuales:hover { border-color: #FF3366; color: #FF3366; }
+        #btn-danza:hover { border-color: #20E3B2; color: #20E3B2; }
+        #btn-musica:hover { border-color: #FF9933; color: #FF9933; }
+        #btn-teatro:hover { border-color: #9D4EDD; color: #9D4EDD; }
+
+        .paths-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn-path {
+            background: var(--light);
+            border: 2px solid var(--dark);
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: var(--dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .btn-path:hover {
+            background: var(--dark);
+            color: white;
+            transform: scale(1.02);
+        }
+
+        .path-title {
+            font-size: 1.3em;
+            display: block;
+            margin-bottom: 5px;
+            color: inherit;
+        }
+
+        .path-desc {
+            font-size: 0.85em;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+
+        .hidden { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .legacy-footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>ART PLANNER</h1>
+        <p class="subtitle">Tu asistente inteligente de planeación de Artes</p>
+        
+        <div id="step-1" class="fade-in">
+            <p class="question">Sabemos que el arte tiene muchos lenguajes y que tu formación es única. Antes de comenzar, ¿en qué rama o especialidad eres más diestro?</p>
+            
+            <div class="grid-specialties">
+                <button class="btn-specialty" onclick="selectSpecialty('Artes Visuales')">🎨 Artes Visuales</button>
+                <button class="btn-specialty" onclick="selectSpecialty('Danza')">💃 Danza</button>
+                <button class="btn-specialty" onclick="selectSpecialty('Música')">🎵 Música</button>
+                <button class="btn-specialty" onclick="selectSpecialty('Teatro')">🎭 Teatro</button>
+            </div>
+        </div>
+
+        <div id="step-2" class="hidden fade-in">
+            <p class="question">¡Excelente elección: <span id="chosen-specialty" style="color: var(--primary);"></span>!</p>
+            <p>Ahora, ¿cómo te gustaría trabajar tu planeación el día de hoy?</p>
+            
+            <div class="paths-container">
+                <button class="btn-path" onclick="goToPath('mantener.html')">
+                    <span class="path-title">🎯 Quiero mantenerme bajo mi especialidad</span>
+                    <span class="path-desc">Vincularemos los PDA del programa sintético directamente con tu área de dominio.</span>
+                </button>
+                
+                <button class="btn-path" onclick="goToPath('aventura.html')">
+                    <span class="path-title">🚀 Quiero hoy aventurarme</span>
+                    <span class="path-desc">Trabajaremos los PDA directos del programa sintético para explorar nuevas formas de arte.</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="legacy-footer">
+        APP creada por el ATP Ulises Jimenez
+    </div>
+
+    <script>
+        function selectSpecialty(specialty) {
+            // Guardamos la especialidad en la memoria del navegador
+            localStorage.setItem('especialidad_docente', specialty);
+            
+            document.getElementById('chosen-specialty').innerText = specialty;
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+        }
+
+        function goToPath(pageUrl) {
+            // Redirige a la nueva página HTML
+            window.location.href = pageUrl;
+        }
+    </script> <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('PWA registrada con éxito.', reg))
+                .catch(err => console.log('Error al registrar PWA.', err));
+            });
+        }
+    </script>
+</body>
+</html>
